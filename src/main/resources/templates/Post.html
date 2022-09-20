@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>帖子管理</title>
+    <link rel="stylesheet" type="text/css" href="/layui/css/layui.css" charset="UTF-8" />
+    <script type="text/javascript" src="/js/jquery-3.5.1.js"></script>
+    <script type="text/javascript" src="/layui/layui.js"></script>
+</head>
+<body>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <fieldset class="table-search-fieldset" style="border: 1px solid gainsboro;">
+            <legend>查找帖子信息</legend>
+            <div style="margin: 10px 10px 10px 10px" id="btn">
+                <form class="layui-form layui-form-pane" action="">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">用户ID</label>
+                            <div class="layui-input-inline">
+                                <!--注意此处input标签里的id-->
+                                <input class="layui-input" name="keyword" id="uid" autocomplete="off">
+                            </div>
+                        </div>
+
+                        <div class="layui-inline">
+                            <!--注意此处button标签里的type属性-->
+                            <button type="button" class="layui-btn layui-btn-primary"  lay-submit data-type="reload" lay-filter="data-search-btn"><i class="layui-icon"></i> 搜 索</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </fieldset>
+        <!--注意此处table标签里的id-->
+        <table id="demo" lay-filter="test" ></table>
+    </div>
+</div>
+
+</body>
+</html>
+
+
+<!--添加版块模态框-->
+<div id="motaikuang" class="layui-form" style="display: none; padding-left: 20px;margin-top: 10px">
+    <input type="text" id="pid" style="display: none">
+    <div class="layui-form-item" style="margin-top: 40px ;margin-bottom: 40px;">
+        <label class="layui-form-label">帖子标题:</label>
+        <div class="layui-input-block">
+            <input type="text"  id="pname" required  lay-verify="required" autocomplete="off"  class="layui-input" style="width: 300px;">
+        </div>
+    </div>
+    <div class="layui-form-item" style="margin-top: 40px ;margin-bottom: 40px;">
+        <label class="layui-form-label">帖子内容:</label>
+        <div class="layui-input-block">
+            <textarea id="pcontent"  type="text" class="layui-input" style="width: 99%; height: 175px;padding: 20px"></textarea>
+
+        </div>
+    </div>
+
+
+
+    <div class="layui-form-item" style="margin-top: 40px">
+        <div class="layui-input-block">
+            <button id="SureUpPost" type="button" class="layui-btn layui-btn-normal layui-btn-radius">提交</button>
+        </div>
+    </div>
+
+
+</div>
+
+
+<script type="text/html" id="userOperate">
+    <a  lay-event="updatestate" title="状态"><i class="layui-icon">&#xe601;</i></a>
+    <a  lay-event="updateinfo" title="修改"><i class="layui-icon">&#xe642;</i></a>
+</script>
+
+<script>
+    $(function (){
+        findAll()
+    })
+
+    function findAll(){
+        layui.use(['jquery', 'form', 'table', 'layer', 'tree'], function () {
+            var table = layui.table;
+            table.render({
+                elem: '#demo'
+                , url: "/getPost"
+                ,toolbar: '#toolbarDemo' //开启头部工具栏，并为其绑定左侧模板
+                ,page: { //支持传入 laypage 组件的所有参数（某些参数除外，如：jump/elem） - 详见文档
+                    layout: ['limit', 'count', 'prev', 'page', 'next', 'skip'] //自定义分页布局
+                    //,curr: 5 //设定初始在第 5 页
+                    ,groups: 5 //只显示 1 个连续页码
+                    ,first: true //不显示首页
+                    ,last: true //不显示尾页
+
+                }
+                //, toolbar: '#toolbarDemo1' //开启头部工具栏，并为其绑定左侧模板
+                , cellMinWidth: 80 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
+                , cols: [[
+                    {field: 'id',type: 'numbers', fixed: 'left'}
+                    , {field: 'pid', title: '帖子编号'}
+                    , {field: 'uid', title: '发帖人编号'}
+                    , {field: 'uname', title: '发帖人姓名'}
+                    , {field: 'pname', title: '帖子标题'}
+                    , {field: 'pcontent', title: '帖子内容'}
+                    , {field: 'ptime', title: '发表时间'}
+                    , {
+                        field: 'pstate', width: 100, title: '状态', templet:
+                            function (d) {
+                                return d.pstate == '0' ? '<span class="layui-btn-xs layui-border-blue" id="state">已启用</span>' : '<span class="layui-btn layui-btn-xs layui-btn-disabled" id="state">已禁用</span>'
+                            }
+                    }
+                    , {align: 'center', title: '操作',  toolbar: '#userOperate'}
+                ]]
+                ,page: true
+                ,limits: [5,10,15,20,25]  //一页选择显示3,5或10条数据
+                ,limit: 10  //一页显示10条数据
+                ,parseData: function(res){ //将原始数据解析成 table 组件所规定的数据，res为从url中get到的数据
+                    var result;
+                    //console.log(this);
+                    //console.log(JSON.stringify(res));
+                    if(this.page.curr){
+                        result = res.data.slice(this.limit*(this.page.curr-1),this.limit*this.page.curr);
+                    }
+                    else{
+                        result=res.data.slice(0,this.limit);
+                    }
+                    return {
+                        "code": res.code, //解析接口状态
+                        "msg": res.msg, //解析提示文本
+                        "count": res.count, //解析数据长度
+                        "data": result //解析数据列表
+                    };
+                }
+
+
+
+
+            });
+            //监听行工具事件
+            table.on('tool(test)', function(obj){
+                var data = obj.data;
+                //console.log(obj)
+                if(obj.event === 'updatestate'){
+                    layer.confirm('确定要修改信息吗', function(index){
+                        var pid=data.pid;
+                        var updatestate=data.pstate;
+                        if (updatestate==0){
+                            updatestate=1
+                        }else{
+                            updatestate=0
+                        }
+                        //alert(state)
+                        $.ajax({
+                            url:"/upPostState",
+                            type:"POST",
+                            datatype: "json",
+                            data:{
+                                "pid":pid,
+                                "pstate": updatestate
+                            },
+                            success:function (res) {
+                                if (res==1){
+                                    location.reload();
+                                    layer.closeAll();
+                                    layer.msg("修改成功", {icon: 1,time:1000});
+                                }else{
+                                    location.reload();
+                                    layer.closeAll();
+                                    layer.msg("修改失败", {icon: 5,time:1000});
+                                }
+                                //修改成功后重新调用查询接口进行查询数据
+                                findAll();
+                            }
+                        })
+                    });
+                }else if(obj.event === 'updateinfo'){
+                    var  pid=data.pid;
+                    var pname=data.pname;
+                    var pcontent=data.pcontent;
+                    $("#pid").val(pid)
+                    $("#pname").val(pname);
+                    $("#pcontent").val(pcontent);
+                    layer.open({
+                        type: 1 //Page层类型
+                        , area: ['520px', '520px']
+                        , offset: '70px'//定义top坐标，水平保持居中
+                        , title: '修改主模块'
+                        , shade: 0.1 //遮罩透明度
+                        , maxmin: true //允许全屏最小化
+                        , anim: 1 //0-6的动画形式，-1不开启
+                        , bagecolor: ""
+                        , content: $("#motaikuang")//显示的内容，这里直接显示一个div的模态框
+                    });
+
+                }
+            });
+
+
+            //修改内容
+            $("#SureUpPost").click(function (){
+                var pid =$("#pid").val();
+                var pname =$("#pname").val();
+                var pcontent=$("#pcontent").val();
+               // alert(pid+","+pname+","+pcontent)
+                $.ajax({
+                    url:"/upPost",
+                    type:"POST",
+                    datatype: "json",
+                    data:{
+                        "pid":pid,
+                        "pname": pname,
+                        "pcontent":pcontent
+                    },
+                    success:function (res) {
+                        if (res==1){
+                            location.reload();
+                            layer.closeAll();
+                            layer.msg("修改成功", {icon: 1,time:1000});
+                        }else{
+                            location.reload();
+                            layer.closeAll();
+                            layer.msg("修改失败", {icon: 5,time:1000});
+                        }
+                        //修改成功后重新调用查询接口进行查询数据
+                        findAll();
+                    }
+                })
+            })
+
+
+            //以下是搜索框进行监测
+            var active = {
+                reload: function(){
+                    var uid=$("#uid");
+                    //执行重载
+                    table.reload('demo', {
+                        page: {
+                            curr: 1 //重新从第 1 页开始
+                        }
+                        ,where: {
+                            'uid':uid.val(),
+                            //在表格中进行搜索
+                        }
+                    });
+                }
+            };
+
+            $('#btn .layui-btn').on('click', function(){
+                var type = $(this).data('type');
+                active[type] ? active[type].call(this) : '';
+            });
+
+        })
+
+    }
+</script>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.forum.admin.mapper.ModuleMapper">
+    <select id="findAllModules" resultType="com.forum.admin.entity.ModuleInfo" parameterType="java.lang.String" >
+        select * from tab_module
+        <choose>
+        <when test="mid!=null and mid!='' and mname!=null and mname!=''">
+            and  mid='${mid}' and  mname='${mname}'
+        </when>
+        <when  test="mid !=null and mid!=''">
+            and  mid='${mid}'
+        </when >
+
+        <when  test="mname !=null and mname!=''">
+            and  mname='${mname}'
+        </when >
+
+    </choose>
+    </select>
+    <update id="updateState"  parameterType="java.lang.Integer" >
+        update tab_module set mstate=#{mstate} where mid=#{mid}
+    </update>
+    <insert id="addModules" parameterType="java.lang.String">
+        insert into tab_module(mname,micon) values (#{mname},#{micon})
+    </insert>
+    <update id="upModules"  parameterType="java.lang.String" >
+        update tab_module set mname=#{mname} where mid=#{mid}
+    </update>
+</mapper>

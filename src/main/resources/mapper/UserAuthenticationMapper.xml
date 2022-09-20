@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.forum.admin.mapper.UserAuthenticationMapper">
+    <select id="findAll" resultType="com.forum.admin.entity.IDcard" parameterType="java.lang.String">
+        select aid,uid,uname,uIDcard from tab_authentication ta where 1=1
+        <choose>
+            <when test="uid!=null and uid!='' and uname!=null and uname!=''and uIDcard!=null and uIDcard!=''">
+                and  uid='${uid}' and  uname='${uname}' and uIDcard='${uIDcard}'
+            </when>
+            <when  test="uid !=null and uid!=''">
+                and  uid='${uid}'
+            </when >
+
+            <when  test="uname !=null and uname!=''">
+                and uname='${uname}'
+            </when >
+
+            <when  test="uIDcard !=null and uIDcard!=''">
+                and uIDcard='${uIDcard}'
+            </when >
+
+        </choose>
+
+
+
+    </select>
+</mapper>

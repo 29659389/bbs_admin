@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>主版块管理</title>
+    <link rel="stylesheet" type="text/css" href="/layui/css/layui.css" charset="UTF-8" />
+    <script type="text/javascript" src="/js/jquery-3.5.1.js"></script>
+    <script type="text/javascript" src="/layui/layui.js"></script>
+</head>
+<body>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <fieldset class="table-search-fieldset" style="border: 1px solid gainsboro;">
+            <legend>查找版块信息</legend>
+            <div style="margin: 10px 10px 10px 10px" id="btn">
+                <form class="layui-form layui-form-pane" action="">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">主版块ID</label>
+                            <div class="layui-input-inline">
+                                <!--注意此处input标签里的id-->
+                                <input class="layui-input" name="keyword" id="mid" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">
+                                主版块名称</label>
+                            <div class="layui-input-inline">
+                                <!--注意此处input标签里的id-->
+                                <input class="layui-input" type="text" name="keyword" id="mname" autocomplete="off">
+                            </div>
+                        </div>
+
+                        <div class="layui-inline">
+                            <!--注意此处button标签里的type属性-->
+                            <button type="button" class="layui-btn layui-btn-primary"  lay-submit data-type="reload" lay-filter="data-search-btn"><i class="layui-icon"></i> 搜 索</button>
+                            <button id="addModule" type="button" class="layui-btn layui-btn-primary"  > 添加版块</button>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </fieldset>
+        <!--注意此处table标签里的id-->
+        <table id="demo" lay-filter="test" ></table>
+    </div>
+</div>
+
+</body>
+</html>
+<!--添加版块模态框-->
+<div id="motaikuang" class="layui-form" style="display: none; padding-left: 20px;margin-top: 10px">
+    <!--<input type="text" id="cid2" required value="0"  lay-verify="required" autocomplete="off"  class="layui-input" style="display: none;width: 300px;">
+    <input type="text" id="roleId2" required value="3"  lay-verify="required" autocomplete="off"  class="layui-input" style="display: none;width: 300px;">
+-->
+    <div class="layui-form-item" style="margin-top: 40px ;margin-bottom: 40px;">
+        <label class="layui-form-label">版块名称:</label>
+        <div class="layui-input-block">
+            <input type="text"  id="addmname" required  lay-verify="required" autocomplete="off"  class="layui-input" style="width: 300px;">
+        </div>
+    </div>
+
+
+    <input type="hidden" name="images" class="image">
+    <div class="layui-form-item">
+        <label class="layui-form-label ">主版块图片:</label>
+        <div class="layui-upload">
+            <button type="button" class="layui-btn" id="test1">上传图片</button>
+            <div class="layui-upload-list">
+                <img class="layui-upload-img" id="demo1" style="width: 150px;height: 150px; margin-left: 110px;">
+                <p id="demoText" style=" margin-left: 110px;"></p>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item" style="margin-top: 40px">
+        <div class="layui-input-block">
+            <button id="SureAddModule" type="button" class="layui-btn layui-btn-normal layui-btn-radius">提交</button>
+        </div>
+    </div>
+</div>
+<!--修改版块模态框-->
+<div id="upmotaikuang" class="layui-form" style="display: none; padding-left: 20px;margin-top: 10px">
+    <input type="text" id="upmid" style="display: none">
+    <div class="layui-form-item" style="margin-top: 40px ;margin-bottom: 40px;">
+        <label class="layui-form-label">版块名称:</label>
+        <div class="layui-input-block">
+            <input type="text"  id="upmname" required  lay-verify="required" autocomplete="off"  class="layui-input" style="width: 300px;">
+        </div>
+    </div>
+    <div class="layui-form-item" style="margin-top: 40px">
+        <div class="layui-input-block">
+            <button id="SureUpModule" type="button" class="layui-btn layui-btn-normal layui-btn-radius">提交</button>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<script type="text/html" id="userOperate">
+    <a  lay-event="updatestate" title="状态"><i class="layui-icon">&#xe601;</i></a>
+    <a  lay-event="updateinfo" title="修改"><i class="layui-icon">&#xe642;</i></a>
+</script>
+
+<script>
+    $(function (){
+        findAll()
+    })
+
+    function findAll(){
+        layui.use(['jquery', 'form', 'table', 'layer', 'tree'], function () {
+            var table = layui.table;
+            table.render({
+                elem: '#demo'
+                , url: "/findAllModules"
+                ,toolbar: '#toolbarDemo' //开启头部工具栏，并为其绑定左侧模板
+                ,page: { //支持传入 laypage 组件的所有参数（某些参数除外，如：jump/elem） - 详见文档
+                    layout: ['limit', 'count', 'prev', 'page', 'next', 'skip'] //自定义分页布局
+                    //,curr: 5 //设定初始在第 5 页
+                    ,groups: 5 //只显示 1 个连续页码
+                    ,first: true //不显示首页
+                    ,last: true //不显示尾页
+
+                }
+                //, toolbar: '#toolbarDemo1' //开启头部工具栏，并为其绑定左侧模板
+                , cellMinWidth: 80 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
+                , cols: [[
+                    {field: 'id',type: 'numbers', fixed: 'left'}
+                    , {field: 'mid', title: '主版块ID'}
+                    , {field: 'mname', title: '主版块名称'}
+                    ,{field: 'mstate', width: 100, title: '状态',templet:
+                            function (d) {return d.mstate == '0' ? '<span class="layui-btn-xs layui-border-blue" id="state">已启用</span>' : '<span class="layui-btn layui-btn-xs layui-btn-disabled" id="state">已禁用</span>'}}
+                    , {align: 'center', title: '操作',  toolbar: '#userOperate'}
+                ]]
+                ,page: true
+                ,limits: [5,10,15,20,25]  //一页选择显示3,5或10条数据
+                ,limit: 10  //一页显示10条数据
+                ,parseData: function(res){ //将原始数据解析成 table 组件所规定的数据，res为从url中get到的数据
+                    var result;
+                    //console.log(this);
+                    //console.log(JSON.stringify(res));
+                    if(this.page.curr){
+                        result = res.data.slice(this.limit*(this.page.curr-1),this.limit*this.page.curr);
+                    }
+                    else{
+                        result=res.data.slice(0,this.limit);
+                    }
+                    return {
+                        "code": res.code, //解析接口状态
+                        "msg": res.msg, //解析提示文本
+                        "count": res.count, //解析数据长度
+                        "data": result //解析数据列表
+                    };
+                }
+
+
+
+
+            });
+            //监听行工具事件
+            table.on('tool(test)', function(obj){
+                var data = obj.data;
+                //console.log(obj)
+                if(obj.event === 'updatestate'){
+                    layer.confirm('确定要修改版块信息吗', function(index){
+                        var mid=data.mid;
+                        var mstate=data.mstate;
+                        if (mstate==0){
+                            mstate=1
+                        }else{
+                            mstate=0
+                        }
+                        //alert(state)
+                        $.ajax({
+                            url:"/updateModulesState",
+                            type:"POST",
+                            datatype: "json",
+                            data:{
+                                "mid":mid,
+                                "mstate": mstate
+                            },
+                            success:function (res) {
+                                if (res==1){
+                                    location.reload();
+                                    layer.closeAll();
+                                    layer.msg("修改成功", {icon: 1,time:1000});
+                                }else{
+                                    location.reload();
+                                    layer.closeAll();
+                                    layer.msg("修改失败", {icon: 5,time:1000});
+                                }
+                                //修改成功后重新调用查询接口进行查询数据
+                                findAll();
+                            }
+                        })
+                    });
+                }else if(obj.event === 'updateinfo'){
+                    var  mid=data.mid;
+                    var mname=data.mname;
+                    $("#upmid").val(mid);
+                    $("#upmname").val(mname);
+                    layer.open({
+                        type: 1 //Page层类型
+                        , area: ['520px', '300px']
+                        , offset: '70px'//定义top坐标，水平保持居中
+                        , title: '修改主模块'
+                        , shade: 0.1 //遮罩透明度
+                        , maxmin: true //允许全屏最小化
+                        , anim: 1 //0-6的动画形式，-1不开启
+                        , bagecolor: ""
+                        , content: $("#upmotaikuang")//显示的内容，这里直接显示一个div的模态框
+                    });
+
+                }
+            });
+
+            //修改主版块名称
+            $("#SureUpModule").click(function (){
+                var mid =$("#upmid").val();
+                var mname=$("#upmname").val();
+                //alert(mid+" "+mname);
+                $.ajax({
+                    url:"/upModules",
+                    type:"POST",
+                    datatype: "json",
+                    data:{
+                        "mname":mname,
+                        "mid": mid
+                    },
+                    success:function (res) {
+                        if (res==1){
+                            location.reload();
+                            layer.closeAll();
+                            layer.msg("修改成功", {icon: 1,time:1000});
+                        }else{
+                            location.reload();
+                            layer.closeAll();
+                            layer.msg("修改失败", {icon: 5,time:1000});
+                        }
+                        //修改成功后重新调用查询接口进行查询数据
+                        findAll();
+                    }
+                })
+            })
+
+
+            //以下是搜索框进行监测
+            var active = {
+                reload: function(){
+                    var mid=$("#mid");
+                    var mname  = $('#mname');	//得到搜索框里已输入的数据
+                    //执行重载
+                    table.reload('demo', {
+                        page: {
+                            curr: 1 //重新从第 1 页开始
+                        }
+                        ,where: {
+                            'mid':mid.val(),
+                            'mname':  mname.val()		//在表格中进行搜索
+                        }
+                    });
+                }
+            };
+
+            $('#btn .layui-btn').on('click', function(){
+                var type = $(this).data('type');
+                active[type] ? active[type].call(this) : '';
+            });
+
+        })
+
+
+
+
+
+
+
+    }
+
+    //添加主版块
+    $("#addModule").click(function (){
+        layer.open({
+            type: 1 //Page层类型
+            , area: ['520px', '520px']
+            , offset: '70px'//定义top坐标，水平保持居中
+            , title: '添加主模块'
+            , shade: 0.1 //遮罩透明度
+            , maxmin: true //允许全屏最小化
+            , anim: 1 //0-6的动画形式，-1不开启
+            , bagecolor: ""
+            , content: $("#motaikuang")//显示的内容，这里直接显示一个div的模态框
+        });
+    })
+
+    $("#SureAddModule").click(function (){
+        var micon=$(".image").val();
+        var mname=$("#addmname").val();
+       // alert(micon+" "+mname);
+        $.ajax({
+            url:"/addModules",
+            type:"POST",
+            datatype: "json",
+            data:{
+                "mname":mname,
+                "micon": micon
+            },
+            success:function (res) {
+                if (res==1){
+                    location.reload();
+                    layer.closeAll();
+                    layer.msg("修改成功", {icon: 1,time:1000});
+                }else{
+                    location.reload();
+                    layer.closeAll();
+                    layer.msg("修改失败", {icon: 5,time:1000});
+                }
+                //修改成功后重新调用查询接口进行查询数据
+                findAll();
+            }
+        })
+    })
+
+    layui.use('upload', function(){
+        var $ = layui.jquery
+            ,upload = layui.upload;
+
+        //普通图片上传
+        var uploadInst = upload.render({
+            elem: '#test1'
+            ,url: '/upload/'
+            ,accept:'images'
+            ,size:50000
+            ,before: function(obj){
+
+                obj.preview(function(index, file, result){
+
+                    $('#demo1').attr('src', result);
+                });
+            }
+            ,done: function(res){
+                //如果上传失败
+                if(res.code > 0){
+                    return layer.msg('上传失败');
+                }
+                //上传成功
+                var demoText = $('#demoText');
+                demoText.html('<span style="color: #4cae4c;">上传成功</span>');
+
+                var fileupload = $(".image");
+                fileupload.attr("value",res.data.src);
+                console.log(fileupload.attr("value"));
+            }
+            ,error: function(){
+                //演示失败状态，并实现重传
+                var demoText = $('#demoText');
+                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+                demoText.find('.demo-reload').on('click', function(){
+                    uploadInst.upload();
+                });
+            }
+        });
+
+
+    });
+
+
+</script>

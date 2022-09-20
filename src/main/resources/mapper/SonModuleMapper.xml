@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.forum.admin.mapper.SonModuleMapper">
+    <select id="getAllModule" resultType="com.forum.admin.entity.ModuleInfo"  >
+        select  * from tab_module
+    </select>
+
+    <select id="findSonByMid" resultType="com.forum.admin.entity.SonModuleInfo" parameterType="java.lang.String" >
+        select * from tab_son_Module t  join tab_m_sm tm on t.smid=tm.smid
+        where tm.mid=#{mid}
+
+    </select>
+    <update id="updateState"  parameterType="java.lang.Integer" >
+        update tab_son_Module set smstate=#{smstate} where smid=#{smid}
+    </update>
+    <insert id="addSonModule" parameterType="java.util.Map">
+        insert into tab_son_Module(smname,smicon) values (#{smname},#{smicon})
+    </insert>
+    <insert id="addSon_Module" parameterType="java.lang.String">
+        insert into tab_m_sm(mid,smid) values (#{mid},#{smid})
+    </insert>
+
+
+
+    <select id="getIdentity" resultType="java.lang.Integer" >
+        select @@identity
+    </select>
+
+    <update id="upSonModule"  parameterType="java.util.Map" >
+        update tab_son_Module set smname=#{smname},smicon=#{smicon} where smid=#{smid}
+    </update>
+
+    <update id="upModule_SonModule"  parameterType="java.lang.String" >
+        update tab_m_sm set mid=#{mid} where smid=#{smid} and mid=#{oldMid}
+    </update>
+
+</mapper>

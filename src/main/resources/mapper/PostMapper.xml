@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.forum.admin.mapper.PostMapper">
+    <select id="getAllPost" resultType="com.forum.admin.entity.PostInfo" parameterType="java.lang.Integer" >
+        select tp.*,tu.* from tab_post tp join tab_post_user tpu on tp.pid=tpu.pid
+        join tab_user tu on tu.uid=tpu.uid
+
+
+        <choose>
+            <when test="uid!=null and uid!=''">
+                and  tpu.uid=#{uid}
+            </when>
+        </choose>
+    </select>
+
+    <select id="findReplyPost" resultType="com.forum.admin.entity.ReplyPost" parameterType="java.lang.String" >
+        select tr.*,tu.uid,tu.uname,tp.pname,tp.ptime,tp.pid from tab_reply tr join tab_user tu on tr.uid=tu.uid
+        join tab_r_p trp on tr.rid=trp.rid
+        join tab_post tp on trp.pid=tp.pid
+        <choose>
+            <when test="pid!=null and pid!=''">
+                and  trp.pid=#{pid}
+            </when>
+        </choose>
+    </select>
+
+
+
+<!--    修改帖子状态-->
+    <update id="upPostState" parameterType="java.lang.String">
+        update tab_post set pstate=#{pstate} where pid=#{pid}
+    </update>
+<!--    修改回帖状态-->
+    <update id="upReplyPost" parameterType="java.lang.String">
+        update tab_reply set rstate=#{rstate} where rid=#{rid}
+    </update>
+
+<!--    修改帖子内容-->
+    <update id="upPost" parameterType="java.lang.String">
+        update tab_post set pname=#{pname},pcontent=#{pcontent} where pid=#{pid}
+    </update>
+
+
+</mapper>

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户管理</title>
+    <link rel="stylesheet" type="text/css" href="/layui/css/layui.css" charset="UTF-8" />
+    <script type="text/javascript" src="/js/jquery-3.5.1.js"></script>
+    <script type="text/javascript" src="/layui/layui.js"></script>
+</head>
+<body>
+    <div class="layuimini-container">
+        <div class="layuimini-main">
+            <fieldset class="table-search-fieldset" style="border: 1px solid gainsboro;">
+                <legend>查找用户</legend>
+                <div style="margin: 10px 10px 10px 10px" id="btn">
+                    <form class="layui-form layui-form-pane" action="">
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <label class="layui-form-label">用户ID</label>
+                                <div class="layui-input-inline">
+                                    <!--注意此处input标签里的id-->
+                                    <input class="layui-input" name="keyword" id="uid" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <label class="layui-form-label">手机号码</label>
+                                <div class="layui-input-inline">
+                                    <!--注意此处input标签里的id-->
+                                    <input class="layui-input" type="number" name="keyword" id="uphone" autocomplete="off">
+                                </div>
+                            </div>
+
+                            <div class="layui-inline">
+                                <!--注意此处button标签里的type属性-->
+                                <button type="button" class="layui-btn layui-btn-primary"  lay-submit data-type="reload" lay-filter="data-search-btn"><i class="layui-icon"></i> 搜 索</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </fieldset>
+            <!--注意此处table标签里的id-->
+            <table id="demo" lay-filter="test" ></table>
+        </div>
+    </div>
+
+</body>
+</html>
+<script type="text/html" id="userOperate">
+    <a  lay-event="updatestate" title="状态"><i class="layui-icon">&#xe601;</i></a>
+    <a  lay-event="updateinfo" title="修改"><i class="layui-icon">&#xe642;</i></a>
+</script>
+
+
+<!--添加模态框-->
+    <div id="motaikuang" class="layui-form" style="display: none;padding-left: 20px;margin-top: 10px">
+        <input type="text" id="cid2" required value="0"  lay-verify="required" autocomplete="off"  class="layui-input" style="display: none;width: 300px;">
+        <input type="text" id="roleId2" required value="3"  lay-verify="required" autocomplete="off"  class="layui-input" style="display: none;width: 300px;">
+
+        <div class="layui-form-item" style="margin-top: 40px">
+            <label class="layui-form-label">用户ID:</label>
+            <div class="layui-input-block">
+                <input type="text" readonly="readonly" id="upuid" required  lay-verify="required" autocomplete="off"  class="layui-input" style="width: 300px;">
+            </div>
+        </div>
+
+        <div class="layui-form-item" style="margin-top: 40px">
+            <label class="layui-form-label">姓名:</label>
+            <div class="layui-input-block">
+                <input type="text" id="upuname" required  lay-verify="required" autocomplete="off"  class="layui-input" style="width: 300px;">
+            </div>
+        </div>
+
+        <div class="layui-form-item" style="margin-top: 40px">
+            <label class="layui-form-label">密码:</label>
+            <div class="layui-input-block">
+                <input type="text" id="upupwd" required  lay-verify="required" autocomplete="off"  class="layui-input" style="width: 300px;">
+            </div>
+        </div>
+
+        <div class="layui-form-item" style="margin-top: 40px">
+            <label class="layui-form-label">手机号:</label>
+            <div class="layui-input-block">
+                <input type="text" id="upuphone" required  lay-verify="required" autocomplete="off"  class="layui-input" style="width: 300px;">
+            </div>
+        </div>
+
+        <div class="layui-form-item" style="margin-top: 40px">
+            <label class="layui-form-label">详细地址:</label>
+            <div class="layui-input-block">
+                <input type="text" id="upaddress" readonly  value="1" placeholder="默认1"  autocomplete="off"  class="layui-input" style="width: 300px;">
+            </div>
+        </div>
+
+        <div class="layui-form-item" style="margin-top: 40px">
+            <label class="layui-form-label">邮箱地址:</label>
+            <div class="layui-input-block">
+                <input type="text" id="upemail" required  lay-verify="required"  autocomplete="off" class="layui-input"  style="width: 300px;">
+            </div>
+        </div>
+
+        <div class="layui-form-item" style="margin-top: 40px">
+            <div class="layui-input-block">
+                <button id="updateUser" type="button" class="layui-btn layui-btn-normal layui-btn-radius">提交</button>
+            </div>
+        </div>
+
+
+    </div>
+
+<!--动态添加图片-->
+<div id="icon1" style="display:none;">
+    <img src="/img/{{d.uicon}}" style="height: 35px;height: 43px">
+</div>
+<script>
+    $(function (){
+        findAll()
+    })
+
+    function findAll(){
+        layui.use(['jquery', 'form', 'table', 'layer', 'tree'], function () {
+            var table = layui.table;
+            table.render({
+                elem: '#demo'
+                , url: "/getAllUser"
+                ,toolbar: '#toolbarDemo' //开启头部工具栏，并为其绑定左侧模板
+                ,page: { //支持传入 laypage 组件的所有参数（某些参数除外，如：jump/elem） - 详见文档
+                    layout: ['limit', 'count', 'prev', 'page', 'next', 'skip'] //自定义分页布局
+                    //,curr: 5 //设定初始在第 5 页
+                    ,groups: 5 //只显示 1 个连续页码
+                    ,first: true //不显示首页
+                    ,last: true //不显示尾页
+
+                }
+                //, toolbar: '#toolbarDemo1' //开启头部工具栏，并为其绑定左侧模板
+                , cellMinWidth: 80 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
+                , cols: [[
+                    {field: 'id',type: 'numbers', fixed: 'left'}
+                    , {field: 'uid', title: '用户ID'}
+                    , {field: 'uname', title: '姓名'}
+                    , {field: 'upwd', title: '密码'}
+                    , {field: 'uphone', title: '手机号'}
+                    , {field: 'address', title: '详细地址'}
+                    , {field: 'email', title: '邮箱地址'}
+                    , {field: 'uicon', title: '图片',templet:"#icon1", function (d) {return d.uicon}}
+                    , {field: 'gname', title: '等级'}
+                    ,{field: 'status', width: 100, title: '状态',templet:
+                            function (d) {return d.state == '0' ? '<span class="layui-btn-xs layui-border-blue" id="state">已启用</span>' : '<span class="layui-btn layui-btn-xs layui-btn-disabled" id="state">已禁用</span>'}}
+                    ,{field: 'realstate', width: 100, title: '实名状态',templet:
+                            function (d) {return d.realstate == '0' ? '<span class="layui-btn-xs layui-border-red">未实名</span>' : '<span class="layui-btn-xs layui-border-blue">已实名</span>'}}
+                    , {align: 'center', title: '操作',  toolbar: '#userOperate'}
+                ]]
+                ,page: true
+                ,limits: [5,10,15,20,25]  //一页选择显示3,5或10条数据
+                ,limit: 10  //一页显示10条数据
+                ,parseData: function(res){ //将原始数据解析成 table 组件所规定的数据，res为从url中get到的数据
+                    var result;
+                    //console.log(this);
+                    //console.log(JSON.stringify(res));
+                    if(this.page.curr){
+                        result = res.data.slice(this.limit*(this.page.curr-1),this.limit*this.page.curr);
+                    }
+                    else{
+                        result=res.data.slice(0,this.limit);
+                    }
+                    return {
+                        "code": res.code, //解析接口状态
+                        "msg": res.msg, //解析提示文本
+                        "count": res.count, //解析数据长度
+                        "data": result //解析数据列表
+                    };
+                }
+
+
+
+
+            });
+            //监听行工具事件
+            table.on('tool(test)', function(obj){
+                var data = obj.data;
+                //console.log(obj)
+                if(obj.event === 'updatestate'){
+                    layer.confirm('确定要修改用户状态吗', function(index){
+                        var userid=data.uid;
+                        var updatestate=data.state;
+                        if (updatestate==0){
+                            updatestate=1
+                        }else{
+                            updatestate=0
+                        }
+                        //alert(state)
+                        $.ajax({
+                            url:"/updateState",
+                            type:"POST",
+                            datatype: "json",
+                            data:{
+                                "uid":userid,
+                                "state": updatestate
+                           },
+                            success:function (res) {
+                                if (res==1){
+                                    location.reload();
+                                    layer.closeAll();
+                                    layer.msg("修改成功", {icon: 1,time:1000});
+                                }else{
+                                    location.reload();
+                                    layer.closeAll();
+                                    layer.msg("修改失败", {icon: 5,time:1000});
+                                }
+                                //修改成功后重新调用查询接口进行查询数据
+                                findAll();
+                            }
+                        })
+                    });
+                }else  if(obj.event === 'updateinfo'){
+                    //alert(123456)
+                    $("#upuid").val(data.uid);
+                    $("#upuname").val(data.uname);
+                    $("#upupwd").val(data.upwd);
+                    $("#upuphone").val(data.uphone);
+                    $("#upaddress").val(data.address);
+                    $("#upemail").val(data.email);
+                    $("#upgname").val(data.gname)
+                    layer.open({
+                        type: 1 //Page层类型
+                        , area: ['520px', '520px']
+                        , offset: '70px'//定义top坐标，水平保持居中
+                        , title: '修改用户信息'
+                        , shade: 0.1 //遮罩透明度
+                        , maxmin: true //允许全屏最小化
+                        , anim: 1 //0-6的动画形式，-1不开启
+                        , bagecolor: ""
+                        , content: $("#motaikuang")//显示的内容，这里直接显示一个div的模态框
+                    });
+                }
+            });
+
+
+            //以下是搜索框进行监测
+            var active = {
+                reload: function(){
+                    var uid=$("#uid");
+                    var uphone  = $('#uphone');	//得到搜索框里已输入的数据
+                    //执行重载
+                    table.reload('demo', {
+                        page: {
+                            curr: 1 //重新从第 1 页开始
+                        }
+                        ,where: {
+                            'uid':uid.val(),
+                            uphone:  uphone.val()		//在表格中进行搜索
+                        }
+                    });
+                }
+            };
+
+            $('#btn .layui-btn').on('click', function(){
+                var type = $(this).data('type');
+                active[type] ? active[type].call(this) : '';
+            });
+
+        })
+
+
+
+
+
+
+
+    }
+
+
+
+    //修改用户信息
+    $("#updateUser").click(function (){
+        var uid =$("#upuid").val();
+        var uname=$("#upuname").val();
+        var upwd=$("#upupwd").val();
+        var uphone=$("#upuphone").val();
+        var address=$("#upaddress").val();
+        var email=$("#upemail").val();
+        $.ajax({
+            url: "/updateUser",
+            type: "post",
+            data:{
+                "uid":uid,
+                "uname":uname,
+                "upwd":upwd,
+                "uphone":uphone,
+                "address":address,
+                "email":email
+            },
+            dataType: "json",
+            success: function (data) {
+                //alert(data)
+                if (data==1){
+                    location.reload();
+                    layer.closeAll();
+                    layer.msg("修改成功", {icon: 1,time:1000});
+                }else{
+                    location.reload();
+                    layer.closeAll();
+                    layer.msg("修改失败", {icon: 5,time:1000});
+                }
+            }
+        })
+    })
+</script>

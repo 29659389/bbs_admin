@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.forum.admin.mapper.SensitiveMapper">
+    <select id="findAll" resultType="com.forum.admin.entity.SensitiveInfo" parameterType="java.lang.String">
+        select * from CensorWords
+        <choose>
+            <when test="context!=null and context!='' ">
+                where  context=#{context}
+            </when>
+        </choose>
+    </select>
+    <insert id="addSst" parameterType="java.lang.String">
+        insert  into CensorWords(context) values(#{context})
+    </insert>
+</mapper>

@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>子版块管理</title>
+    <link rel="stylesheet" type="text/css" href="/layui/css/layui.css" charset="UTF-8" />
+    <script type="text/javascript" src="/js/jquery-3.5.1.js"></script>
+    <script type="text/javascript" src="/layui/layui.js"></script>
+</head>
+<body>
+<div class="layuimini-container">
+    <div class="layuimini-main">
+        <fieldset class="table-search-fieldset" style="border: 1px solid gainsboro;">
+            <div class="layui-inline">
+                <legend>查找版块信息</legend>
+                <div style="margin: 10px 10px 10px 10px" id="btn" class="layui-form">
+                    <form class="layui-form layui-form-pane" action="">
+                        <select name="city" lay-filter="filter" id="SonModule">
+                        </select>
+                    </form>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <button id="addModule" type="button" class="layui-btn layui-btn-primary " style="margin-top: 20px" > 添加版块</button>
+            </div>
+
+        </fieldset>
+        <!--注意此处table标签里的id-->
+        <table id="demo" lay-filter="test" ></table>
+    </div>
+</div>
+
+</body>
+</html>
+
+
+<!--添加版块模态框-->
+<div id="motaikuang" class="layui-form" style="display: none; padding-left: 20px;margin-top: 10px">
+    <input type="text" id="cid2" required value="0"  lay-verify="required" autocomplete="off"  class="layui-input" style="display: none;width: 300px;">
+    <input type="text" id="roleId2" required value="3"  lay-verify="required" autocomplete="off"  class="layui-input" style="display: none;width: 300px;">
+
+
+    <div class="layui-form-item" style="margin-top: 40px ;margin-bottom: 40px;">
+        <label class="layui-form-label">选择对应的主版块:</label>
+        <div class="layui-input-block">
+            <form class="layui-form layui-form-pane" action=""style="width: 288px">
+                <select name="city"  id="AddSonModule" >
+                </select>
+            </form>
+        </div>
+    </div>
+    <div class="layui-form-item" style="margin-top: 40px ;margin-bottom: 40px;">
+        <label class="layui-form-label">子版块名称:</label>
+        <div class="layui-input-block">
+            <input type="text"  id="addSmname" required  lay-verify="required" autocomplete="off"  class="layui-input" style="width: 300px;">
+        </div>
+    </div>
+
+
+    <input type="hidden" name="images" class="image">
+    <div class="layui-form-item">
+        <label class="layui-form-label ">子版块图片:</label>
+        <div class="layui-upload">
+            <button type="button" class="layui-btn" id="test1">上传图片</button>
+            <div class="layui-upload-list">
+                <img class="layui-upload-img" id="demo1" style="width: 150px;height: 150px; margin-left: 110px;">
+                <p id="demoText" style=" margin-left: 110px;"></p>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="layui-form-item" style="margin-top: 40px">
+        <div class="layui-input-block">
+            <button id="SureAddModule" type="button" class="layui-btn layui-btn-normal layui-btn-radius">提交</button>
+        </div>
+    </div>
+
+
+</div>
+<script type="text/html" id="userOperate">
+    <a  lay-event="updatestate" title="状态"><i class="layui-icon">&#xe601;</i></a>
+    <a  lay-event="updateinfo" title="修改"><i class="layui-icon">&#xe642;</i></a>
+</script>
+<!--修改版块模态框-->
+<div id="upmotaikuang" class="layui-form" style="display: none; padding-left: 20px;margin-top: 10px">
+    <div class="layui-form-item" style="margin-top: 40px ;margin-bottom: 40px;">
+        <label class="layui-form-label">选择对应的主版块:</label>
+        <div class="layui-input-block">
+            <form class="layui-form layui-form-pane" action=""style="width: 288px">
+                <select name="city"  id="UpSonModule" >
+                </select>
+            </form>
+        </div>
+    </div>
+    <div class="layui-form-item" style="margin-top: 40px ;margin-bottom: 40px;">
+        <label class="layui-form-label">子版块名称:</label>
+        <div class="layui-input-block">
+            <input type="text" id="upSmid" style="display: none">
+            <input type="text" id="mid" style="display: none">
+            <input type="text"  id="upSmname" required  lay-verify="required" autocomplete="off"  class="layui-input" style="width: 300px;">
+        </div>
+    </div>
+
+
+    <input type="hidden" name="images" class="image" id="upImgUrl">
+    <div class="layui-form-item">
+        <label class="layui-form-label ">子版块图片:</label>
+        <div class="layui-upload">
+            <button type="button" class="layui-btn" id="test2">上传图片</button>
+            <div class="layui-upload-list">
+                <img class="layui-upload-img" id="demo2" style="width: 150px;height: 150px; margin-left: 110px;">
+                <p id="demoText1" style=" margin-left: 110px;"></p>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="layui-form-item" style="margin-top: 40px">
+        <div class="layui-input-block">
+            <button id="SureUpModule" type="button" class="layui-btn layui-btn-normal layui-btn-radius">提交</button>
+        </div>
+    </div>
+
+
+</div>
+
+<!--动态添加图片-->
+<div id="icon1" style="display:none;">
+    <img src="/img/{{d.smicon}}" style="height: 35px;height: 43px">
+</div>
+<script>
+    $(function (){
+        getAllModule();
+        //findAll()
+    })
+
+
+        //获取所有的父级模块
+        function  getAllModule(){
+
+
+            var src='<option value="">请选择...</option>';
+            $.ajax({
+                url:'/getAllModule',
+                type:'post',
+                dataType:'json',
+                success:function(data){
+                    if(data.status==1){
+                        $.each(data.data,function(index,item){
+                            src+='<option value="'+item.mid+'">'+item.mname+'</option>';
+                        });
+                        //将动态获取的option内容添加到select中
+                        $('#SonModule').append(src);
+                        $("#AddSonModule").append(src)
+                        $("#UpSonModule").append(src)
+                        //alert(src)
+                        //重新渲染select框
+                        layui.form.render("select");
+                    }
+
+                }
+            });
+
+
+        }
+
+
+
+
+
+        //通过获取select框的选择内容来查询所对应的子版块
+    layui.use(['jquery', 'form', 'table', 'layer', 'tree'], function () {
+        var table = layui.table;
+        var layer = layui.layer;
+        var form = layui.form;
+        var laydate = layui.laydate;
+
+        //当select框更改时所触发的事件
+        form.on('select(filter)', function (data) {
+            //获取主版块id
+            var mid=data.value;
+            //alert(mid)
+            //将获取到的信息放到table中
+            table.render({
+                elem: '#demo'
+                , url: "/findSonByMid"
+                , toolbar: '#toolbarDemo' //开启头部工具栏，并为其绑定左侧模板
+                , page: { //支持传入 laypage 组件的所有参数（某些参数除外，如：jump/elem） - 详见文档
+                    layout: ['limit', 'count', 'prev', 'page', 'next', 'skip'] //自定义分页布局
+                    //,curr: 5 //设定初始在第 5 页
+                    , groups: 5 //只显示 1 个连续页码
+                    , first: true //不显示首页
+                    , last: true //不显示尾页
+
+                },
+                where: {
+                    "mid": mid
+                }
+                //, toolbar: '#toolbarDemo1' //开启头部工具栏，并为其绑定左侧模板
+                , cellMinWidth: 80 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
+                , cols: [[
+                    {field: 'id', type: 'numbers', fixed: 'left'}
+                    , {field: 'smid', title: '子版块ID'}
+                    , {field: 'smname', title: '子版块名称'}
+                    , {field: 'smicon', title: '图片',templet:"#icon1", function (d) {return d.smicon}}
+                    , {
+                        field: 'smstate', width: 100, title: '状态', templet:
+                            function (d) {
+                                return d.smstate == '1' ? '<span class="layui-btn-xs layui-border-blue" id="state">已启用</span>' : '<span class="layui-btn layui-btn-xs layui-btn-disabled" id="state">已禁用</span>'
+                            }
+                    }
+                    , {align: 'center', title: '操作', toolbar: '#userOperate'}
+                ]]
+                , page: true
+                , limits: [5, 10, 15, 20, 25]  //一页选择显示3,5或10条数据
+                , limit: 10  //一页显示10条数据
+                , parseData: function (res) { //将原始数据解析成 table 组件所规定的数据，res为从url中get到的数据
+                    var result;
+                    //console.log(this);
+                    //console.log(JSON.stringify(res));
+                    if (this.page.curr) {
+                        result = res.data.slice(this.limit * (this.page.curr - 1), this.limit * this.page.curr);
+                    } else {
+                        result = res.data.slice(0, this.limit);
+                    }
+                    return {
+                        "code": res.code, //解析接口状态
+                        "msg": res.msg, //解析提示文本
+                        "count": res.count, //解析数据长度
+                        "data": result //解析数据列表
+                    };
+                }
+
+
+            })
+
+
+        });
+
+        //监听行工具事件
+        table.on('tool(test)', function(obj){
+            var data = obj.data;
+            //console.log(obj)
+            if(obj.event === 'updatestate'){
+                layer.confirm('确定要修改版块信息吗', function(index){
+                    var smid=data.smid;
+                    var smstate=data.smstate;
+                    if (smstate==0){
+                        smstate=1
+                    }else{
+                        smstate=0
+                    }
+                    //alert(state)
+                    $.ajax({
+                        url:"/updateSonModulesState",
+                        type:"POST",
+                        datatype: "json",
+                        data:{
+                            "smid":smid,
+                            "smstate": smstate
+                        },
+                        success:function (res) {
+                            if (res==1){
+                                location.reload();
+                                layer.closeAll();
+                                layer.msg("修改成功", {icon: 1,time:1000});
+                            }else{
+                                location.reload();
+                                layer.closeAll();
+                                layer.msg("修改失败", {icon: 5,time:1000});
+                            }
+                            //修改成功后重新调用查询接口进行查询数据
+                            findAll();
+                        }
+                    })
+                });
+            }else if(obj.event === 'updateinfo'){
+                $("#mid").val($('#SonModule option:selected').val())
+                var  smid=data.smid;
+                var mname=data.smname;
+                $("#upSmid").val(smid);
+                $("#upSmname").val(mname);
+                layer.open({
+                    type: 1 //Page层类型
+                    , area: ['520px', '800px']
+                    , offset: '70px'//定义top坐标，水平保持居中
+                    , title: '修改主模块'
+                    , shade: 0.1 //遮罩透明度
+                    , maxmin: true //允许全屏最小化
+                    , anim: 1 //0-6的动画形式，-1不开启
+                    , bagecolor: ""
+                    , content: $("#upmotaikuang")//显示的内容，这里直接显示一个div的模态框
+                });
+
+            }
+        });
+    });
+
+    $("#SureUpModule").click(function (){
+        var oldMid=$("#mid").val();
+        var mid=$('#UpSonModule option:selected').val()
+        var smid =$("#upSmid").val();
+        var smname=$("#upSmname").val();
+        var imgUrl=$("#upImgUrl").val();
+       // alert(smid+""+smname+""+imgUrl);
+        $.ajax({
+            url:"/upSonModule",
+            type:"POST",
+            datatype: "json",
+            data:{
+                "mid":mid,
+                "oldMid":oldMid,
+                "smid":smid,
+                "smname": smname,
+                "smicon":imgUrl
+            },
+            success:function (res) {
+                if (res==1){
+                    location.reload();
+                    layer.closeAll();
+                    layer.msg("修改成功", {icon: 1,time:1000});
+                }else{
+                    location.reload();
+                    layer.closeAll();
+                    layer.msg("修改失败", {icon: 5,time:1000});
+                }
+                //修改成功后重新调用查询接口进行查询数据
+                findAll();
+            }
+        })
+    })
+
+
+
+
+
+    //添加子版块
+    $("#addModule").click(function (){
+
+        layer.open({
+            type: 1 //Page层类型
+            , area: ['520px', '520px']
+            , offset: '70px'//定义top坐标，水平保持居中
+            , title: '添加主模块'
+            , shade: 0.1 //遮罩透明度
+            , maxmin: true //允许全屏最小化
+            , anim: 1 //0-6的动画形式，-1不开启
+            , bagecolor: ""
+            , content: $("#motaikuang")//显示的内容，这里直接显示一个div的模态框
+        });
+    })
+
+
+    $("#SureAddModule").click(function (){
+        var mid=$("#AddSonModule").val();
+        var smname=$("#addSmname").val();
+        var smicon=$(".image").val();
+        //alert(mid+","+smname+","+smicon)
+        $.ajax({
+            url:"/addSonModule",
+            type:"POST",
+            datatype: "json",
+            data:{
+                "mid":mid,
+                "smname": smname,
+                "smicon":smicon
+            },
+            success:function (res) {
+                if (res==1){
+                    location.reload();
+                    layer.closeAll();
+                    layer.msg("修改成功", {icon: 1,time:1000});
+                }else{
+                    location.reload();
+                    layer.closeAll();
+                    layer.msg("修改失败", {icon: 5,time:1000});
+                }
+                //修改成功后重新调用查询接口进行查询数据
+
+            }
+        })
+    })
+
+
+    layui.use('upload', function(){
+        var $ = layui.jquery
+            ,upload = layui.upload;
+
+        //普通图片上传
+        var uploadInst = upload.render({
+            elem: '#test1'
+            ,url: '/upload/'
+            ,accept:'images'
+            ,size:50000
+            ,before: function(obj){
+
+                obj.preview(function(index, file, result){
+
+                    $('#demo1').attr('src', result);
+                });
+            }
+            ,done: function(res){
+                //如果上传失败
+                if(res.code > 0){
+                    return layer.msg('上传失败');
+                }
+                //上传成功
+                var demoText = $('#demoText');
+                demoText.html('<span style="color: #4cae4c;">上传成功</span>');
+
+                var fileupload = $(".image");
+                fileupload.attr("value",res.data.src);
+                console.log(fileupload.attr("value"));
+            }
+            ,error: function(){
+                //演示失败状态，并实现重传
+                var demoText = $('#demoText');
+                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+                demoText.find('.demo-reload').on('click', function(){
+                    uploadInst.upload();
+                });
+            }
+        });
+
+
+    });
+
+
+
+
+
+    layui.use('upload', function(){
+        var $ = layui.jquery
+            ,upload = layui.upload;
+
+        //普通图片上传
+        var uploadInst = upload.render({
+            elem: '#test2'
+            ,url: '/upload/'
+            ,accept:'images'
+            ,size:50000
+            ,before: function(obj){
+
+                obj.preview(function(index, file, result){
+
+                    $('#demo2').attr('src', result);
+                });
+            }
+            ,done: function(res){
+                //如果上传失败
+                if(res.code > 0){
+                    return layer.msg('上传失败');
+                }
+                //上传成功
+                var demoText = $('#demoText1');
+                demoText.html('<span style="color: #4cae4c;">上传成功</span>');
+
+                var fileupload = $("#upImgUrl");
+                fileupload.attr("value",res.data.src);
+                console.log(fileupload.attr("value"));
+            }
+            ,error: function(){
+                //演示失败状态，并实现重传
+                var demoText = $('#demoText');
+                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+                demoText.find('.demo-reload').on('click', function(){
+                    uploadInst.upload();
+                });
+            }
+        });
+
+
+    });
+
+
+
+</script>

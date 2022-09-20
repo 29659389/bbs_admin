@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.forum.admin.mapper.UserListMapper">
+
+    <!--<select id="getAllUser" resultType="com.forum.admin.entity.UserInfo">
+        select tu.*,tg.gname from tab_user tu join tab_grade tg on tu.gid=tg.gid
+    </select>-->
+    <update id="updateState"  parameterType="java.lang.Integer" >
+        update tab_user set state=#{state} where uid=#{uid}
+    </update>
+    <select id="getAllUser" resultType="com.forum.admin.entity.UserInfo" parameterType="java.lang.String">
+        select tu.*,tg.gname from tab_user tu join tab_grade tg on tu.gid=tg.gid
+            <choose>
+                <when test="uid!=null and uid!='' and uphone!=null and uid!=''">
+                    and  tu.uid='${uid}' and  tu.uphone='${uphone}'
+                </when>
+                <when  test="uid !=null and uid!=''">
+                    and  tu.uid='${uid}'
+                </when >
+
+                <when  test="uphone !=null and uphone!=''">
+                    and  tu.uphone='${uphone}'
+                </when >
+
+            </choose>
+
+
+
+    </select>
+    <update id="updateUser" parameterType="com.forum.admin.entity.UserInfo">
+        update tab_user set uname=#{uname},upwd=#{upwd},uphone=#{uphone},address=#{address},email=#{email}
+        where uid=#{uid}
+    </update>
+</mapper>

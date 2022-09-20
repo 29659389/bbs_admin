@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.forum.admin.mapper.MenuMapper">
+    <select id="getMenu" resultType="java.util.Map" parameterType="java.lang.Integer">
+        select rs.id,rs.resource_name,rs.url,rs.pid,rs.icon from resource rs
+        join  tab_resource_user ru on rs.id=ru.rid
+        join tab_admin ta on ta.uid=ru.uid where ta.uid=#{uid}
+    </select>
+</mapper>
